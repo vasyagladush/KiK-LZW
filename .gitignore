@@ -1,0 +1,15 @@
+# Ignore compiled binaries and object files
+*.o
+*.exe
+*.out
+*.bin
+
+# Ignore Visual Studio files
+*.suo
+*.vcxproj.user
+*.pdb
+ipch/
+.vscode/
+
+# Ignore macOS system files
+.DS_Store
