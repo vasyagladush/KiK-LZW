@@ -12,7 +12,7 @@ It supports:
 
 ---
 
-### **Linux/macOS (Makefile)**
+### **Linux/macOS or Windows WSL (Makefile)**
 #### **Install g++ (if not installed)**
 ```sh
 sudo apt install g++  # Debian/Ubuntu
