@@ -2,18 +2,14 @@
 // #include <fstream>
 #include "lzw_compressor.h"
 
-int main() {
-    // std::string inputFile = "input.txt";
-    // std::string compressedFile = "compressed.lzw";
-    // std::string decompressedFile = "output.txt";
+int main()
+{
+    LZWCompressor compressor;
+    std::string input = "ABABCAB"; // Example input
+    auto compressedOutput = compressor.compress(input);
 
-    // Compress the file
-    LZWCompressor::compress();
-    // std::cout << "File compressed to: " << compressedFile << std::endl;
-
-    // Decompress the file
-    LZWCompressor::decompress();
-    // std::cout << "File decompressed to: " << decompressedFile << std::endl;
+    // Print the compressed output as a binary string
+    std::cout << "Compressed Output: " << compressor.getCompressedBinaryString(compressedOutput) << std::endl;
 
     return 0;
 }
