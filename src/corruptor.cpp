@@ -2,29 +2,35 @@
 #include <stdexcept>
 #include <random>
 
+// TODO: verify inverter's functionality
+
+const unsigned int kBitsPerChar = 12;
+
 namespace corruptor {
 
     std::set<size_t> selector(
         const size_t &length,
         const int &quantity) {
-            // Selects specified quanity of non-repeating indexes in range [0, length)
-            if (length < 1) {
-                throw std::invalid_argument("Length must be at least 1.");
-            }
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            std::uniform_int_distribution<> distr(0, length - 1);
-            std::set<size_t> selected;
-            while (selected.size() < quantity) {
-                selected.insert(distr(gen));
-            }
-            return selected;
+        // Selects specified quanity of non-repeating indexes in range [0, length)
+
+        if (length < 1) {
+            throw std::invalid_argument("Length must be at least 1.");
         }
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distr(0, length - 1);
+        std::set<size_t> selected;
+        while (selected.size() < quantity) {
+            selected.insert(distr(gen));
+        }
+        return selected;
+    }
 
     std::vector<unsigned int> inverter(
         const std::vector<unsigned int> &compressed,
         const Range &bits_per_inversion,
         const Range &inversions) {
+
         if (    bits_per_inversion.start > bits_per_inversion.end
             ||  inversions.start > inversions.end) {
             throw std::invalid_argument("Start of Range must be no greater than its end.");
@@ -41,12 +47,11 @@ namespace corruptor {
         std::uniform_int_distribution<> distr(bits_per_inversion.start, bits_per_inversion.end);
         for (auto idx : selected) {
             int bits_to_invert = distr(gen);
-
+            std::uniform_int_distribution<> distr(0, kBitsPerChar - bits_to_invert - 1);
+            int position = distr(gen);
+            int mask = ((1 << bits_to_invert) - 1) << position;
+            inverted[idx] = inverted[idx] ^ mask;
         }
-        // for every to be changed:
-
-        //   pick bits to invert
-
-}
+    }
 
 }  // namespace corruptor
