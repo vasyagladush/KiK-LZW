@@ -1,6 +1,6 @@
 #include "corruptor.h"
-#include <ctime>
 #include <stdexcept>
+#include <random>
 
 namespace corruptor {
 
@@ -11,10 +11,12 @@ namespace corruptor {
             if (length < 1) {
                 throw std::invalid_argument("Length must be at least 1.");
             }
-            srand(std::time(NULL));
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<> distr(0, length - 1);
             std::set<size_t> selected;
             while (selected.size() < quantity) {
-                selected.insert(rand() % length);
+                selected.insert(distr(gen));
             }
             return selected;
         }
@@ -28,6 +30,22 @@ namespace corruptor {
             throw std::invalid_argument("Start of Range must be no greater than its end.");
         }
 
+        int inversion_to_perform;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distr(inversions.start, inversions.end);
+        inversion_to_perform = distr(gen);
+        std::set<size_t> selected = selector(compressed.size(), inversion_to_perform);
+
+        std::vector<unsigned int> inverted(compressed);
+        std::uniform_int_distribution<> distr(bits_per_inversion.start, bits_per_inversion.end);
+        for (auto idx : selected) {
+            int bits_to_invert = distr(gen);
+
+        }
+        // for every to be changed:
+
+        //   pick bits to invert
 
 }
 
