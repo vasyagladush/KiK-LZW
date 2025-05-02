@@ -20,6 +20,8 @@ namespace corruptor {
         const Range &bits_per_inversion,
         const Range &inversions);
 
-    // TODO: Swapper?
+    std::vector<unsigned int> swapper(
+        const std::vector<unsigned int> &compressed,
+        const Range &positions_to_swap);
 
 }  // namespace corruptor

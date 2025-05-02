@@ -14,8 +14,13 @@ namespace corruptor {
         // Selects specified quanity of non-repeating indexes in range [0, length)
 
         if (length < 1) {
-            throw std::invalid_argument("Length must be at least 1.");
+            throw std::invalid_argument("[corruptor::selector] Length must be at least 1.");
         }
+
+        if (quantity > length) {
+            throw std::invalid_argument("[corruptor::selector] Quantity must not exceed length.");
+        }
+
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distr(0, length - 1);
@@ -33,7 +38,11 @@ namespace corruptor {
 
         if (    bits_per_inversion.start > bits_per_inversion.end
             ||  inversions.start > inversions.end) {
-            throw std::invalid_argument("Start of Range must be no greater than its end.");
+            throw std::invalid_argument("[corruptor::inverter] Start of Range must be no greater than its end.");
+        }
+
+        if (bits_per_inversion.end > kBitsPerChar) {
+            throw std::invalid_argument("[corruptor::inverter] Inversion range exceed bits per character.");
         }
 
         int inversion_to_perform;
@@ -44,15 +53,47 @@ namespace corruptor {
         std::set<size_t> selected = selector(compressed.size(), inversion_to_perform);
 
         std::vector<unsigned int> inverted(compressed);
-        std::uniform_int_distribution<> distr(bits_per_inversion.start, bits_per_inversion.end);
+        std::uniform_int_distribution<> distr_bits(bits_per_inversion.start, bits_per_inversion.end);
         for (auto idx : selected) {
-            int bits_to_invert = distr(gen);
-            std::uniform_int_distribution<> distr(0, kBitsPerChar - bits_to_invert - 1);
-            int position = distr(gen);
+            int bits_to_invert = distr_bits(gen);
+            int position;
+            
+            if (bits_to_invert == kBitsPerChar) {
+                position = 0;
+            } else {
+                std::uniform_int_distribution<> distr_pos(0, kBitsPerChar - bits_to_invert - 1);
+                position = distr_pos(gen);
+            }
+
             int mask = ((1 << bits_to_invert) - 1) << position;
             inverted[idx] = inverted[idx] ^ mask;
         }
         return inverted;
+    }
+
+    std::vector<unsigned int> swapper(
+        const std::vector<unsigned int> &compressed,
+        const Range &positions_to_swap) {
+        
+        if (positions_to_swap.start > positions_to_swap.end) {
+            throw std::invalid_argument("[corruptor::swapper] Start of Range must be no greater than its end.");
+        }
+
+        int swaps_to_perform;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distr(positions_to_swap.start, positions_to_swap.end);
+        swaps_to_perform = distr(gen);
+        std::set<size_t> selected = selector(compressed.size(), swaps_to_perform);
+
+        std::uniform_int_distribution<> distr(0, compressed.size() - 1);
+        std::vector<unsigned int> swapped(compressed);
+        for (auto idx : selected) {
+            // Can swap with itself, but for more than 1 swap
+            // the result could just end up being the input anyway without complex checks
+            std::swap(swapped.at(idx), swapped.at(distr(gen)));
+        }
+        return swapped;
     }
 
 }  // namespace corruptor
