@@ -52,6 +52,7 @@ namespace corruptor {
             int mask = ((1 << bits_to_invert) - 1) << position;
             inverted[idx] = inverted[idx] ^ mask;
         }
+        return inverted;
     }
 
 }  // namespace corruptor
