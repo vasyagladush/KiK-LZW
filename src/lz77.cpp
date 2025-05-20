@@ -85,16 +85,16 @@ double calculate_compression_rate(const std::string& original, const std::vector
 }
 
 
-int main(){
-    std::string text = "asdfsdfasdgasasdasdasdasdasdasffsafsdsadasdasdasdsasddsadsadasfsadsdsadasadsadsaffagsagsagsadsadadsadsadsadsadasdsadsadsadasdsadasdasdsafafssafsa";
-    LZ77Encoder encoder(255);
-    auto compressed = encoder.encode(text);
-    LZ77Decoder decoder;
-    std::string decompressed = decoder.decode(compressed);
-    for (const auto& token : compressed) {
-        std::cout << "Offset: " << (int)token.position
-                  << ", Length: " << (int)token.length
-                  << ", Next: '" << token.symbol << "'\n";
-    }
-    std::cout<<"Original:"<<text<<"\tDecompressed:"<<decompressed<<"\nCompression rate:"<<calculate_compression_rate(text, compressed);
-}
+// int main(){
+//     std::string text = "asdfsdfasdgasasdasdasdasdasdasffsafsdsadasdasdasdsasddsadsadasfsadsdsadasadsadsaffagsagsagsadsadadsadsadsadsadasdsadsadsadasdsadasdasdsafafssafsa";
+//     LZ77Encoder encoder(255);
+//     auto compressed = encoder.encode(text);
+//     LZ77Decoder decoder;
+//     std::string decompressed = decoder.decode(compressed);
+//     for (const auto& token : compressed) {
+//         std::cout << "Offset: " << (int)token.position
+//                   << ", Length: " << (int)token.length
+//                   << ", Next: '" << token.symbol << "'\n";
+//     }
+//     std::cout<<"Original:"<<text<<"\tDecompressed:"<<decompressed<<"\nCompression rate:"<<calculate_compression_rate(text, compressed);
+// }

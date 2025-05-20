@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <set>
+#include <cstddef>
 
 namespace corruptor {
 
@@ -11,8 +12,8 @@ namespace corruptor {
         const int end;
     };
 
-    std::set<size_t> selector(
-        const size_t &length,
+    std::set<std::size_t> selector(
+        const std::size_t &length,
         const int &quantity);
 
     std::vector<unsigned int> inverter(

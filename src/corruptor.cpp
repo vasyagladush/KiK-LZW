@@ -6,8 +6,8 @@
 
 namespace corruptor {
 
-    std::set<size_t> selector(
-        const size_t &length,
+    std::set<std::size_t> selector(
+        const std::size_t &length,
         const int &quantity) {
         // Selects specified quanity of non-repeating indexes in range [0, length)
 
@@ -22,7 +22,7 @@ namespace corruptor {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distr(0, length - 1);
-        std::set<size_t> selected;
+        std::set<std::size_t> selected;
         while (selected.size() < quantity) {
             selected.insert(distr(gen));
         }
@@ -49,7 +49,7 @@ namespace corruptor {
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distr(inversions.start, inversions.end);
         inversion_to_perform = distr(gen);
-        std::set<size_t> selected = selector(compressed.size(), inversion_to_perform);
+        std::set<std::size_t> selected = selector(compressed.size(), inversion_to_perform);
 
         std::vector<unsigned int> inverted(compressed);
         std::uniform_int_distribution<> distr_bits(bits_per_inversion.start, bits_per_inversion.end);
@@ -83,14 +83,14 @@ namespace corruptor {
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distr(positions_to_swap.start, positions_to_swap.end);
         swaps_to_perform = distr(gen);
-        std::set<size_t> selected = selector(compressed.size(), swaps_to_perform);
+        std::set<std::size_t> selected = selector(compressed.size(), swaps_to_perform);
 
-        std::uniform_int_distribution<> distr(0, compressed.size() - 1);
+        std::uniform_int_distribution<> distr2(0, compressed.size() - 1);
         std::vector<unsigned int> swapped(compressed);
         for (auto idx : selected) {
             // Can swap with itself, but for more than 1 swap
             // the result could just end up being the input anyway without complex checks
-            std::swap(swapped.at(idx), swapped.at(distr(gen)));
+            std::swap(swapped.at(idx), swapped.at(distr2(gen)));
         }
         return swapped;
     }
