@@ -72,29 +72,17 @@ std::string LZ77Decoder::decode(std::vector<EncodedData>& compressed) {
     return output;
 }
 
-double calculate_compression_rate(const std::string& original, const std::vector<EncodedData>& compressed) {
-    size_t original_size = original.size();
-
-    // Each DataSet contains 2 bytes (uint8_t, uint8_t) and 1 char = 3 bytes
-    size_t compressed_size = compressed.size() * sizeof(EncodedData);
-
-    if (original_size == 0) return 0.0;
-
-    double rate = (1.0 - static_cast<double>(compressed_size) / original_size) * 100.0;
-    return rate;
-}
-
 
 // int main(){
-//     std::string text = "asdfsdfasdgasasdasdasdasdasdasffsafsdsadasdasdasdsasddsadsadasfsadsdsadasadsadsaffagsagsagsadsadadsadsadsadsadasdsadsadsadasdsadasdasdsafafssafsa";
-//     LZ77Encoder encoder(255);
-//     auto compressed = encoder.encode(text);
-//     LZ77Decoder decoder;
-//     std::string decompressed = decoder.decode(compressed);
-//     for (const auto& token : compressed) {
-//         std::cout << "Offset: " << (int)token.position
-//                   << ", Length: " << (int)token.length
-//                   << ", Next: '" << token.symbol << "'\n";
-//     }
-//     std::cout<<"Original:"<<text<<"\tDecompressed:"<<decompressed<<"\nCompression rate:"<<calculate_compression_rate(text, compressed);
+    // std::string text = "asdfsdfasdgasasdasdasdasdasdasffsafsdsadasdasdasdsasddsadsadasfsadsdsadasadsadsaffagsagsagsadsadadsadsadsadsadasdsadsadsadasdsadasdasdsafafssafsa";
+    // LZ77Encoder encoder(255);
+    // auto compressed = encoder.encode(text);
+    // LZ77Decoder decoder;
+    // std::string decompressed = decoder.decode(compressed);
+    // for (const auto& token : compressed) {
+    //     std::cout << "Offset: " << (int)token.position
+    //               << ", Length: " << (int)token.length
+    //               << ", Next: '" << token.symbol << "'\n";
+    // }
+    // std::cout<<"Original:"<<text<<"\tDecompressed:"<<decompressed<<"\nCompression rate:"<<calculate_compression_rate(text, compressed);
 // }
