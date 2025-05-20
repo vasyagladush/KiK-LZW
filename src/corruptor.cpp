@@ -8,7 +8,7 @@ namespace corruptor {
 
     std::set<std::size_t> selector(
         const std::size_t &length,
-        const int &quantity) {
+        size_t &quantity) {
         // Selects specified quanity of non-repeating indexes in range [0, length)
 
         if (length < 1) {
@@ -44,7 +44,7 @@ namespace corruptor {
             throw std::invalid_argument("[corruptor::inverter] Inversion range exceed bits per character.");
         }
 
-        int inversion_to_perform;
+        size_t inversion_to_perform;
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distr(inversions.start, inversions.end);
@@ -78,19 +78,19 @@ namespace corruptor {
             throw std::invalid_argument("[corruptor::swapper] Start of Range must be no greater than its end.");
         }
 
-        int swaps_to_perform;
+        size_t swaps_to_perform;
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distr(positions_to_swap.start, positions_to_swap.end);
-        swaps_to_perform = distr(gen);
+        std::uniform_int_distribution<> distr_quantity(positions_to_swap.start, positions_to_swap.end);
+        swaps_to_perform = distr_quantity(gen);
         std::set<std::size_t> selected = selector(compressed.size(), swaps_to_perform);
 
-        std::uniform_int_distribution<> distr2(0, compressed.size() - 1);
+        std::uniform_int_distribution<> distr_positions(0, compressed.size() - 1);
         std::vector<unsigned int> swapped(compressed);
         for (auto idx : selected) {
             // Can swap with itself, but for more than 1 swap
             // the result could just end up being the input anyway without complex checks
-            std::swap(swapped.at(idx), swapped.at(distr2(gen)));
+            std::swap(swapped.at(idx), swapped.at(distr_positions(gen)));
         }
         return swapped;
     }

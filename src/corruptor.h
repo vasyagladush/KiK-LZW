@@ -14,7 +14,7 @@ namespace corruptor {
 
     std::set<std::size_t> selector(
         const std::size_t &length,
-        const int &quantity);
+        size_t &quantity);
 
     std::vector<unsigned int> inverter(
         const std::vector<unsigned int> &compressed,
