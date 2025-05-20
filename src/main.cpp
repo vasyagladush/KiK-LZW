@@ -1,7 +1,7 @@
 #include <iostream>
 #include "lzw.h"
 
-#define LZW_COMPRESSION_BIT_SIZE 9
+#define LZW_COMPRESSION_BIT_SIZE 12
 
 int main()
 {

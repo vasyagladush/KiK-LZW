@@ -4,8 +4,6 @@
 
 // TODO: verify inverter's functionality
 
-const unsigned int kBitsPerChar = 12;
-
 namespace corruptor {
 
     std::set<size_t> selector(
@@ -32,6 +30,7 @@ namespace corruptor {
     }
 
     std::vector<unsigned int> inverter(
+        const std::uint8_t bits_per_char,
         const std::vector<unsigned int> &compressed,
         const Range &bits_per_inversion,
         const Range &inversions) {
@@ -41,7 +40,7 @@ namespace corruptor {
             throw std::invalid_argument("[corruptor::inverter] Start of Range must be no greater than its end.");
         }
 
-        if (bits_per_inversion.end > kBitsPerChar) {
+        if (bits_per_inversion.end > bits_per_char) {
             throw std::invalid_argument("[corruptor::inverter] Inversion range exceed bits per character.");
         }
 
@@ -58,10 +57,10 @@ namespace corruptor {
             int bits_to_invert = distr_bits(gen);
             int position;
             
-            if (bits_to_invert == kBitsPerChar) {
+            if (bits_to_invert == bits_per_char) {
                 position = 0;
             } else {
-                std::uniform_int_distribution<> distr_pos(0, kBitsPerChar - bits_to_invert - 1);
+                std::uniform_int_distribution<> distr_pos(0, bits_per_char - bits_to_invert - 1);
                 position = distr_pos(gen);
             }
 

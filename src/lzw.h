@@ -18,7 +18,7 @@ namespace LZW
 
     private:
         const std::uint8_t bitSize_;
-        int nextCode_;
+        unsigned int nextCode_;
         static std::unordered_map<std::string, int> initialDictionary_;
         std::unordered_map<std::string, int> dictionary_;
     };
