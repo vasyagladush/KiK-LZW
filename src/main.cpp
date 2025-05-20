@@ -4,72 +4,85 @@
 
 #define LZW_COMPRESSION_BIT_SIZE 12
 
-double calculate_compression_rate(const std::string &original, const std::vector<EncodedData> &compressed)
+// Helper: Calculate compression rate for LZW
+double calculate_lzw_compression_rate(const std::string &original, const std::vector<int> &compressedCodes, int bitSize)
 {
-    size_t original_size = original.size();
-
-    // Each DataSet contains 2 bytes (uint8_t, uint8_t) and 1 char = 3 bytes
-    size_t compressed_size = compressed.size() * sizeof(EncodedData);
-
-    if (original_size == 0)
+    if (original.empty())
         return 0.0;
 
-    double rate = (1.0 - static_cast<double>(compressed_size) / original_size) * 100.0;
-    return rate;
+    size_t originalBits = original.size() * 8;
+    size_t compressedBits = compressedCodes.size() * bitSize;
+
+    return (1.0 - static_cast<double>(compressedBits) / originalBits) * 100.0;
+}
+
+// Helper: Calculate compression rate for LZ77
+double calculate_lz77_compression_rate(const std::string &original, const std::vector<EncodedData> &compressed)
+{
+    if (original.empty())
+        return 0.0;
+
+    size_t originalSize = original.size();                           // in bytes
+    size_t compressedSize = compressed.size() * sizeof(EncodedData); // assumed 3 bytes each
+    return (1.0 - static_cast<double>(compressedSize) / originalSize) * 100.0;
+}
+
+// Helper: Print result of decompression check
+void verify_decompression(const std::string &original, const std::string &decompressed)
+{
+    if (original == decompressed)
+        std::cout << "Decompression successful!" << std::endl;
+    else
+        std::cout << "Decompression failed!" << std::endl;
 }
 
 int main()
 {
-    std::string input = "ABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCAB"; // Example input
+    std::string input = "ABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCAB";
 
-    LZW::Compressor compressor(LZW_COMPRESSION_BIT_SIZE);
-    auto compressedCodes = compressor.compress(input);
-    std::string compressedBinary = compressor.getCompressedBinaryString(compressedCodes);
+    std::cout << "\n=== LZW Compression ===\n";
 
-    std::cout << "Original String: " << input << std::endl;
-    std::cout << "Compressed Output (Binary): " << compressedBinary << std::endl;
+    // LZW Compression
+    LZW::Compressor lzwCompressor(LZW_COMPRESSION_BIT_SIZE);
+    auto lzwCompressedCodes = lzwCompressor.compress(input);
+    std::string lzwCompressedBinary = lzwCompressor.getCompressedBinaryString(lzwCompressedCodes);
 
-    LZW::Decompressor decompressor(LZW_COMPRESSION_BIT_SIZE);
-    std::string decompressedString = decompressor.decompress(compressedCodes);
+    std::cout << "Original String:\n"
+              << input << "\n";
+    std::cout << "Compressed Output (Binary):\n"
+              << lzwCompressedBinary << "\n";
 
-    std::cout << "Decompressed String: " << decompressedString << std::endl;
+    // LZW Decompression
+    LZW::Decompressor lzwDecompressor(LZW_COMPRESSION_BIT_SIZE);
+    std::string lzwDecompressed = lzwDecompressor.decompress(lzwCompressedCodes);
 
-    // Compare original and decompressed strings
-    if (input == decompressedString)
-    {
-        std::cout << "Decompression successful!" << std::endl;
-    }
-    else
-    {
-        std::cout << "Decompression failed!" << std::endl;
-    }
+    verify_decompression(input, lzwDecompressed);
 
-    // Calculate compression ratio
-    size_t originalBits = input.size() * 8;
-    size_t compressedBits = compressedCodes.size() * LZW_COMPRESSION_BIT_SIZE;
-    double compressionRatio = (1.0 - (double)compressedBits / originalBits) * 100.0;
+    double lzwCompressionRate = calculate_lzw_compression_rate(input, lzwCompressedCodes, LZW_COMPRESSION_BIT_SIZE);
 
-    std::cout << "Original Size: " << originalBits << " bits" << std::endl;
-    std::cout << "Compressed Size: " << compressedBits << " bits" << std::endl;
-    std::cout << "Compression Savings: " << compressionRatio << "%" << std::endl;
+    std::cout << "Compression Savings: " << lzwCompressionRate << "%\n";
 
-    std::cout << "\n---------------------------------------------------\n\n";
+    std::cout << "\n---------------------------------------------------\n";
 
-    LZ77Encoder encoder(255);
-    auto compressed = encoder.encode(input);
-    LZ77Decoder decoder;
-    std::string decompressed = decoder.decode(compressed);
+    std::cout << "\n=== LZ77 Compression ===\n";
 
-    std::cout << "LZW77:\n";
-    if (input == decompressed)
-    {
-        std::cout << "Decompression successful!" << std::endl;
-    }
-    else
-    {
-        std::cout << "Decompression failed!" << std::endl;
-    }
-    std::cout << "Original:" << input << "\nDecompressed:" << decompressed << "\nCompression rate:" << calculate_compression_rate(input, compressed) << "%";
+    // LZ77 Compression
+    LZ77Encoder lz77Encoder(255);
+    auto lz77Compressed = lz77Encoder.encode(input);
+
+    // LZ77 Decompression
+    LZ77Decoder lz77Decoder;
+    std::string lz77Decompressed = lz77Decoder.decode(lz77Compressed);
+
+    verify_decompression(input, lz77Decompressed);
+
+    double lz77CompressionRate = calculate_lz77_compression_rate(input, lz77Compressed);
+
+    std::cout << "Original String:\n"
+              << input << "\n";
+    // std::cout << "Decompressed String:\n"
+    //           << lz77Decompressed << "\n";
+    std::cout << "Compression Savings: " << lz77CompressionRate << "%\n";
 
     return 0;
 }
