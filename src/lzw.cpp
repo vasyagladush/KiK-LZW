@@ -6,7 +6,7 @@
 
 namespace LZW
 {
-    std::unordered_map<std::string, int> Compressor::initialDictionary_;
+    std::unordered_map<std::string, unsigned int> Compressor::initialDictionary_;
 
     Compressor::Compressor(std::uint8_t bitSize) : bitSize_(bitSize), nextCode_(256)
     {
@@ -14,7 +14,7 @@ namespace LZW
         if (initialDictionary_.empty())
         {
             // Initialize the dictionary_ with ASCII characters (codes 0-255)
-            for (int i = 0; i < 256; ++i)
+            for (unsigned int i = 0; i < 256; ++i)
             {
                 initialDictionary_[std::string(1, char(i))] = i;
             }
@@ -25,11 +25,11 @@ namespace LZW
     }
 
     // Method to get the string representation of bits of compressed codes
-    std::string Compressor::getCompressedBinaryString(const std::vector<int> &compressedCodes)
+    std::string Compressor::getCompressedBinaryString(const std::vector<unsigned int> &compressedCodes)
     {
         std::string compressedBinary;
 
-        for (int code : compressedCodes)
+        for (unsigned int code : compressedCodes)
         {
             // Convert the code to a binary string with the fixed bit size
             std::string binCode = std::bitset<32>(code).to_string(); // Get 32-bit binary representation
@@ -42,10 +42,10 @@ namespace LZW
         return compressedBinary;
     }
 
-    std::vector<int> Compressor::compress(const std::string &input)
+    std::vector<unsigned int> Compressor::compress(const std::string &input)
     {
         std::string currentStr = "";
-        std::vector<int> compressedCodes; // Stores the final compressed output
+        std::vector<unsigned int> compressedCodes; // Stores the final compressed output
 
         for (char ch : input)
         {
@@ -79,7 +79,7 @@ namespace LZW
         return compressedCodes;
     }
 
-    std::unordered_map<int, std::string> Decompressor::initialReverseDictionary_;
+    std::unordered_map<unsigned int, std::string> Decompressor::initialReverseDictionary_;
 
     Decompressor::Decompressor(std::uint8_t bitSize) : bitSize_(bitSize), nextCode_(256)
     {
@@ -87,7 +87,7 @@ namespace LZW
         if (initialReverseDictionary_.empty())
         {
             // Initialize the reverse dictionary_ with ASCII characters (codes 0-255)
-            for (int i = 0; i < 256; ++i)
+            for (unsigned int i = 0; i < 256; ++i)
             {
                 initialReverseDictionary_[i] = std::string(1, char(i));
             }
@@ -97,9 +97,9 @@ namespace LZW
         reverseDictionary_ = initialReverseDictionary_;
     }
 
-    std::string Decompressor::decompress(const std::vector<int> &compressedCodes)
+    std::string Decompressor::decompress(const std::vector<unsigned int> &compressedCodes)
     {
-        int currentCode = compressedCodes[0];
+        unsigned int currentCode = compressedCodes[0];
         std::string decompressed = reverseDictionary_[currentCode];
         std::string previousStr = decompressed;
 

@@ -5,7 +5,7 @@
 #include <vector>
 #include "lz77.h"
 
-LZ77Encoder::LZ77Encoder(int dict_size){
+LZ77Encoder::LZ77Encoder(unsigned int dict_size){
     this->dictionary = new char[dict_size];
     this->dict_len = dict_size;
 }
@@ -73,15 +73,15 @@ std::string LZ77Decoder::decode(std::vector<EncodedData>& compressed) {
 }
 
 
-// int main(){
+// unsigned int main(){
     // std::string text = "asdfsdfasdgasasdasdasdasdasdasffsafsdsadasdasdasdsasddsadsadasfsadsdsadasadsadsaffagsagsagsadsadadsadsadsadsadasdsadsadsadasdsadasdasdsafafssafsa";
     // LZ77Encoder encoder(255);
     // auto compressed = encoder.encode(text);
     // LZ77Decoder decoder;
     // std::string decompressed = decoder.decode(compressed);
     // for (const auto& token : compressed) {
-    //     std::cout << "Offset: " << (int)token.position
-    //               << ", Length: " << (int)token.length
+    //     std::cout << "Offset: " << (unsigned int)token.position
+    //               << ", Length: " << (unsigned int)token.length
     //               << ", Next: '" << token.symbol << "'\n";
     // }
     // std::cout<<"Original:"<<text<<"\tDecompressed:"<<decompressed<<"\nCompression rate:"<<calculate_compression_rate(text, compressed);

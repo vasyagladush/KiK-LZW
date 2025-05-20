@@ -4,10 +4,12 @@
 #include <set>
 #include <cstddef>
 
-namespace corruptor {
+namespace corruptor
+{
 
     // C++17 does not have ranges as part of standard library
-    struct Range {
+    struct Range
+    {
         const int start;
         const int end;
     };
@@ -17,6 +19,7 @@ namespace corruptor {
         size_t &quantity);
 
     std::vector<unsigned int> inverter(
+        const std::uint8_t bits_per_char,
         const std::vector<unsigned int> &compressed,
         const Range &bits_per_inversion,
         const Range &inversions);
@@ -25,4 +28,4 @@ namespace corruptor {
         const std::vector<unsigned int> &compressed,
         const Range &positions_to_swap);
 
-}  // namespace corruptor
+} // namespace corruptor

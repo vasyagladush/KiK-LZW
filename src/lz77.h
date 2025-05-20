@@ -10,11 +10,11 @@ struct EncodedData{
 
 class LZ77Encoder{
     char* dictionary;
-    int dict_len;
+    unsigned int dict_len;
     std::string in_buffer;
     public:
     LZ77Encoder(){}
-    LZ77Encoder(int dict_len);
+    LZ77Encoder(unsigned int dict_len);
     std::vector<EncodedData> encode(std::string &input);
 
 };
@@ -22,6 +22,6 @@ class LZ77Encoder{
 class LZ77Decoder{
     public:
     LZ77Decoder(){}
-    LZ77Decoder(int dict_len);
+    LZ77Decoder(unsigned int dict_len);
     std::string decode(std::vector<EncodedData> &input);
 };

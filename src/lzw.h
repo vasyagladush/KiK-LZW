@@ -12,28 +12,28 @@ namespace LZW
     {
     public:
         Compressor(std::uint8_t bitSize);
-        std::vector<int> compress(const std::string &input);
-        const int bitSize() const { return bitSize_; }
-        std::string getCompressedBinaryString(const std::vector<int> &compressedCodes);
+        std::vector<unsigned int> compress(const std::string &input);
+        const unsigned int bitSize() const { return bitSize_; }
+        std::string getCompressedBinaryString(const std::vector<unsigned int> &compressedCodes);
 
     private:
         const std::uint8_t bitSize_;
         unsigned int nextCode_;
-        static std::unordered_map<std::string, int> initialDictionary_;
-        std::unordered_map<std::string, int> dictionary_;
+        static std::unordered_map<std::string, unsigned int> initialDictionary_;
+        std::unordered_map<std::string, unsigned int> dictionary_;
     };
 
     class Decompressor
     {
     public:
         Decompressor(std::uint8_t bitSize);
-        std::string decompress(const std::vector<int> &compressedCodes);
-        const int bitSize() const { return bitSize_; }
+        std::string decompress(const std::vector<unsigned int> &compressedCodes);
+        const unsigned int bitSize() const { return bitSize_; }
 
     private:
         const std::uint8_t bitSize_;
-        int nextCode_;
-        static std::unordered_map<int, std::string> initialReverseDictionary_;
-        std::unordered_map<int, std::string> reverseDictionary_;
+        unsigned int nextCode_;
+        static std::unordered_map<unsigned int, std::string> initialReverseDictionary_;
+        std::unordered_map<unsigned int, std::string> reverseDictionary_;
     };
 }
