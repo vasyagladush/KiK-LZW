@@ -22,8 +22,8 @@ double calculate_lz77_compression_rate(const std::string &original, const std::v
     if (original.empty())
         return 0.0;
 
-    size_t originalSize = original.size();                           // in bytes
-    size_t compressedSize = compressed.size() * sizeof(EncodedData); // assumed 3 bytes each
+    size_t originalSize = original.size();
+    size_t compressedSize = compressed.size() * sizeof(EncodedData);
     return (1.0 - static_cast<double>(compressedSize) / originalSize) * 100.0;
 }
 
