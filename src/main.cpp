@@ -3,9 +3,24 @@
 #include "corruptor.h"
 #include "lzw.h"
 #include "lz77.h"
+#include <fstream>
 
 #define LZW_COMPRESSION_BIT_SIZE 12
 #define NUM_TEST_RUNS 100000
+
+// Helper: Load file into a string (binary-safe)
+std::string load_file_as_binary_string(const std::string &filepath)
+{
+    std::ifstream file(filepath, std::ios::binary);
+    if (!file)
+    {
+        throw std::runtime_error("Failed to open file: " + filepath);
+    }
+
+    std::string contents((std::istreambuf_iterator<char>(file)),
+                         std::istreambuf_iterator<char>());
+    return contents;
+}
 
 // Helper: Calculate compression rate for LZW
 double calculate_lzw_compression_rate(const std::string &original, const std::vector<unsigned int> &compressedCodes, unsigned int bitSize)
@@ -107,7 +122,16 @@ double run_corruption_test(const std::function<std::string()> &decompress_func, 
 
 int main()
 {
-    std::string input = "ABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCABABABCABDCAB";
+    std::string input;
+    try
+    {
+        input = load_file_as_binary_string("example_files/pdf/1 mB sample pdf file  .pdf");
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error loading file: " << e.what() << std::endl;
+        return 1;
+    }
 
     std::cout << "\n=== LZW Compression ===\n";
 
@@ -115,11 +139,6 @@ int main()
     LZW::Compressor lzwCompressor(LZW_COMPRESSION_BIT_SIZE);
     auto lzwCompressedCodes = lzwCompressor.compress(input);
     std::string lzwCompressedBinary = lzwCompressor.getCompressedBinaryString(lzwCompressedCodes);
-
-    std::cout << "Original String:\n"
-              << input << "\n";
-    std::cout << "Compressed Output (Binary):\n"
-              << lzwCompressedBinary << "\n";
 
     // LZW Decompression
     LZW::Decompressor lzwDecompressor(LZW_COMPRESSION_BIT_SIZE);
@@ -147,89 +166,89 @@ int main()
 
     double lz77CompressionRate = calculate_lz77_compression_rate(input, lz77Compressed);
 
-    std::cout << "Original String:\n"
-              << input << "\n";
-    // std::cout << "Decompressed String:\n"
-    //           << lz77Decompressed << "\n";
+    // std::cout << "Original String:\n"
+    // << input << "\n";
+// std::cout << "Decompressed String:\n"
+//           << lz77Decompressed << "\n";
     std::cout << "Compression Savings: " << lz77CompressionRate << "%\n";
+    
+    // {
+    //     std::cout << "\n---------------------------------------------------\n";
+    //     std::cout << "\n=== LZW Corruption Test (inverter) ===\n";
 
-    {
-        std::cout << "\n---------------------------------------------------\n";
-        std::cout << "\n=== LZW Corruption Test (inverter) ===\n";
+    //     double totalErrorRate = 0.0;
+    //     for (int i = 0; i < NUM_TEST_RUNS; ++i)
+    //     {
+    //         corruptor::Range bitRange{0, LZW_COMPRESSION_BIT_SIZE - 1};
+    //         corruptor::Range inversionCountRange{1, 5};
+    //         auto corruptedLZW = corruptor::inverter(LZW_COMPRESSION_BIT_SIZE, lzwCompressedCodes, bitRange, inversionCountRange);
 
-        double totalErrorRate = 0.0;
-        for (int i = 0; i < NUM_TEST_RUNS; ++i)
-        {
-            corruptor::Range bitRange{0, LZW_COMPRESSION_BIT_SIZE - 1};
-            corruptor::Range inversionCountRange{1, 5};
-            auto corruptedLZW = corruptor::inverter(LZW_COMPRESSION_BIT_SIZE, lzwCompressedCodes, bitRange, inversionCountRange);
+    //         totalErrorRate += run_corruption_test(
+    //             [&]()
+    //             { return lzwDecompressor.decompress(corruptedLZW); },
+    //             input);
+    //     }
+    //     std::cout << "Average error rate over " << NUM_TEST_RUNS << " runs: " << (totalErrorRate / NUM_TEST_RUNS) << "%\n";
+    // }
 
-            totalErrorRate += run_corruption_test(
-                [&]()
-                { return lzwDecompressor.decompress(corruptedLZW); },
-                input);
-        }
-        std::cout << "Average error rate over " << NUM_TEST_RUNS << " runs: " << (totalErrorRate / NUM_TEST_RUNS) << "%\n";
-    }
+    // {
+    //     std::cout << "\n---------------------------------------------------\n";
+    //     std::cout << "\n=== LZW Corruption Test (swapper) ===\n";
 
-    {
-        std::cout << "\n---------------------------------------------------\n";
-        std::cout << "\n=== LZW Corruption Test (swapper) ===\n";
+    //     double totalErrorRate = 0.0;
+    //     for (int i = 0; i < NUM_TEST_RUNS; ++i)
+    //     {
+    //         corruptor::Range lzwSwapRange{0, static_cast<int>(lzwCompressedCodes.size() - 1)};
+    //         auto corruptedLZWSwapped = corruptor::swapper(lzwCompressedCodes, lzwSwapRange);
 
-        double totalErrorRate = 0.0;
-        for (int i = 0; i < NUM_TEST_RUNS; ++i)
-        {
-            corruptor::Range lzwSwapRange{0, static_cast<int>(lzwCompressedCodes.size() - 1)};
-            auto corruptedLZWSwapped = corruptor::swapper(lzwCompressedCodes, lzwSwapRange);
+    //         totalErrorRate += run_corruption_test(
+    //             [&]()
+    //             { return lzwDecompressor.decompress(corruptedLZWSwapped); },
+    //             input);
+    //     }
+    //     std::cout << "Average error rate over " << NUM_TEST_RUNS << " runs: " << (totalErrorRate / NUM_TEST_RUNS) << "%\n";
+    // }
 
-            totalErrorRate += run_corruption_test(
-                [&]()
-                { return lzwDecompressor.decompress(corruptedLZWSwapped); },
-                input);
-        }
-        std::cout << "Average error rate over " << NUM_TEST_RUNS << " runs: " << (totalErrorRate / NUM_TEST_RUNS) << "%\n";
-    }
+    // {
+    //     std::cout << "\n---------------------------------------------------\n";
+    //     std::cout << "\n=== LZ77 Corruption Test (inverter) ===\n";
 
-    {
-        std::cout << "\n---------------------------------------------------\n";
-        std::cout << "\n=== LZ77 Corruption Test (inverter) ===\n";
+    //     double totalErrorRate = 0.0;
+    //     for (int i = 0; i < NUM_TEST_RUNS; ++i)
+    //     {
+    //         auto lz77AsInts = encode_lz77_to_uints(lz77Compressed);
+    //         corruptor::Range lz77BitRange{0, 23};
+    //         corruptor::Range lz77InversionCountRange{1, 5};
+    //         auto corruptedLZ77Inverted = corruptor::inverter(24, lz77AsInts, lz77BitRange, lz77InversionCountRange);
+    //         auto corruptedLZ77InvertedDecoded = decode_uints_to_lz77(corruptedLZ77Inverted);
 
-        double totalErrorRate = 0.0;
-        for (int i = 0; i < NUM_TEST_RUNS; ++i)
-        {
-            auto lz77AsInts = encode_lz77_to_uints(lz77Compressed);
-            corruptor::Range lz77BitRange{0, 23};
-            corruptor::Range lz77InversionCountRange{1, 5};
-            auto corruptedLZ77Inverted = corruptor::inverter(24, lz77AsInts, lz77BitRange, lz77InversionCountRange);
-            auto corruptedLZ77InvertedDecoded = decode_uints_to_lz77(corruptedLZ77Inverted);
+    //         totalErrorRate += run_corruption_test(
+    //             [&]()
+    //             { return lz77Decoder.decode(corruptedLZ77InvertedDecoded); },
+    //             input);
+    //     }
+    //     std::cout << "Average error rate over " << NUM_TEST_RUNS << " runs: " << (totalErrorRate / NUM_TEST_RUNS) << "%\n";
+    // }
 
-            totalErrorRate += run_corruption_test(
-                [&]()
-                { return lz77Decoder.decode(corruptedLZ77InvertedDecoded); },
-                input);
-        }
-        std::cout << "Average error rate over " << NUM_TEST_RUNS << " runs: " << (totalErrorRate / NUM_TEST_RUNS) << "%\n";
-    }
+    // {
+    //     std::cout << "\n---------------------------------------------------\n";
+    //     std::cout << "\n=== LZ77 Corruption Test (swapper) ===\n";
 
-    {
-        std::cout << "\n---------------------------------------------------\n";
-        std::cout << "\n=== LZ77 Corruption Test (swapper) ===\n";
+    //     double totalErrorRate = 0.0;
+    //     for (int i = 0; i < NUM_TEST_RUNS; ++i)
+    //     {
+    //         corruptor::Range swapRange{0, static_cast<int>(lz77Compressed.size() - 1)};
+    //         auto lz77AsInts = encode_lz77_to_uints(lz77Compressed);
+    //         auto corruptedInts = corruptor::swapper(lz77AsInts, swapRange);
+    //         auto corruptedLZ77 = decode_uints_to_lz77(corruptedInts);
 
-        double totalErrorRate = 0.0;
-        for (int i = 0; i < NUM_TEST_RUNS; ++i)
-        {
-            corruptor::Range swapRange{0, static_cast<int>(lz77Compressed.size() - 1)};
-            auto lz77AsInts = encode_lz77_to_uints(lz77Compressed);
-            auto corruptedInts = corruptor::swapper(lz77AsInts, swapRange);
-            auto corruptedLZ77 = decode_uints_to_lz77(corruptedInts);
-
-            totalErrorRate += run_corruption_test(
-                [&]()
-                { return lz77Decoder.decode(corruptedLZ77); },
-                input);
-        }
-        std::cout << "Average error rate over " << NUM_TEST_RUNS << " runs: " << (totalErrorRate / NUM_TEST_RUNS) << "%\n";
-    }
+    //         totalErrorRate += run_corruption_test(
+    //             [&]()
+    //             { return lz77Decoder.decode(corruptedLZ77); },
+    //             input);
+    //     }
+    //     std::cout << "Average error rate over " << NUM_TEST_RUNS << " runs: " << (totalErrorRate / NUM_TEST_RUNS) << "%\n";
+    // }
 
     return 0;
 }
